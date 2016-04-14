@@ -1,6 +1,37 @@
 var n = NPos3d;
 var scene = new n.Scene();
 var socket = io();
+var split = window.location.pathname.split("/start/")[1].split('-');
+
+socket.emit(
+	'init',
+	{
+		room: split[0],
+		id: split[1]
+	}
+);
+
+var colorMap = {
+	'0': '#f00',
+	'1': '#ff0',
+	'2': '#0f0',
+	'3': '#00f'
+};
+var shipMap = {};
+var getShipById = function(id){
+	var result = shipMap[id];
+	if(!result){
+		var newShip = new n.Ob3D({
+			shape: shipShape,
+			pos: [0, 0, 0],
+			color: colorMap[id]
+		});
+		scene.add(newShip);
+		shipMap[id] = newShip;
+	}
+	return result;
+};
+
 var encode = function(x){
 	return JSON.stringify(x);
 };
@@ -23,10 +54,10 @@ var shipShape = {
 		[1, 2],
 		[2, 3],
 		[3, 0],
-		[4, 5, '#ff0'],
-		[5, 6, '#ff0'],
-		[6, 7, '#ff0'],
-		[7, 4, '#ff0'],
+		[4, 5],
+		[5, 6],
+		[6, 7],
+		[7, 4],
 		[4, 0],
 		[5, 1],
 		[6, 2],
@@ -34,28 +65,21 @@ var shipShape = {
 	]
 };
 
-socket.on('cursorUpdate', function(msg){
-	console.log(msg);
-	var data = decode(msg);
-	var newShip = new n.Ob3D({
-		shape: shipShape,
-		pos: [data[0], data[1], 0],
-		color: '#9f0'
-	});
-	scene.add(newShip);
+socket.on('cursorUpdate', function(cursor){
+	var ship = getShipById(cursor.id);
+	ship.pos[0] = cursor.x;
+	ship.pos[1] = cursor.y;
 });
 
 
 var clickHandler = function(e){
 	socket.emit(
 		'cursor',
-		encode([
-			e.clientX,
-			e.clientY
-		])
+		{
+			x: scene.mpos.x,
+			y: scene.mpos.y
+		}
 	);
 };
 
-$('*').on('click touch', clickHandler);
-
-
+$('*').on('click mousemove touchstart touchmove', clickHandler);
