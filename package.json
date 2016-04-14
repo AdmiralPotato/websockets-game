@@ -1,0 +1,22 @@
+{
+  "name": "resume-game",
+  "version": "0.0.1",
+  "description": "Making a mini-game the night before a meet-and-greet to look like a badass to employers",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AdmiralPotato/resume-game.git"
+  },
+  "author": "Admiral Potato",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AdmiralPotato/resume-game/issues"
+  },
+  "homepage": "https://github.com/AdmiralPotato/resume-game#readme",
+  "dependencies": {
+    "express": "^4.13.4"
+  }
+}
