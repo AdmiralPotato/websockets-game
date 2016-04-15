@@ -15,19 +15,19 @@ var colorMap = {
 	'0': '#f00',
 	'1': '#ff0',
 	'2': '#0f0',
-	'3': '#00f'
+	'3': '#09f'
 };
 var shipMap = {};
 var getShipById = function(id){
 	var result = shipMap[id];
 	if(!result){
-		var newShip = new n.Ob3D({
+		result = new n.Ob3D({
 			shape: shipShape,
 			pos: [0, 0, 0],
 			color: colorMap[id]
 		});
-		scene.add(newShip);
-		shipMap[id] = newShip;
+		scene.add(result);
+		shipMap[id] = result;
 	}
 	return result;
 };
@@ -65,10 +65,12 @@ var shipShape = {
 	]
 };
 
-socket.on('cursorUpdate', function(cursor){
-	var ship = getShipById(cursor.id);
-	ship.pos[0] = cursor.x;
-	ship.pos[1] = cursor.y;
+socket.on('tick', function(room){
+	room.players.forEach(function(player){
+		var ship = getShipById(player.id);
+		ship.pos[0] = player.x;
+		ship.pos[1] = player.y;
+	});
 });
 
 

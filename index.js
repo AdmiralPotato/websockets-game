@@ -1,34 +1,61 @@
 var express = require('express');
-var session = require('express-session');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-app.use(session({
-	genid: function(req) {
-		return Math.random(); // use UUIDs for session IDs
-	},
-	secret: 'keyboard cat'
-}));
-
 app.get('/start/[a-z]-[0-3]', function(req, res){
-	res.sendfile('public/index.html');
+	res.sendfile('public/play.html');
 });
 
 app.use(express.static('public'));
 
 
+var roomMap = {};
+var makeTicker = function(roomId){
+	return function(){
+		//console.log(roomId, 'tick');
+		var room = roomMap[roomId];
+		io.to(roomId).emit('tick', room);
+	}
+};
+var initialRoomState = function(roomId){
+	var room = {
+		players: [
+			{id: '0', x: -100, y: -100, score: 0},
+			{id: '1', x:  100, y: -100, score: 0},
+			{id: '2', x:  100, y:  100, score: 0},
+			{id: '3', x: -100, y:  100, score: 0}
+		]
+	};
+	roomMap[roomId] = room;
+	setInterval(makeTicker(roomId), 1000/40);
+	return room;
+};
+
+initialRoomState('a');
+initialRoomState('b');
+initialRoomState('c');
+initialRoomState('d');
+
+
 var handleConnection = function(socket){
 	console.log('a user connected');
+	var ident;
+	var room;
 	var player;
 	socket.on('init', function(p){
-		player = p;
-		socket.join(player.room);
+		ident = p;
+		var playerIndex = parseInt(ident.id, 10);
+		room = roomMap[ident.room];
+		player = room.players[playerIndex];
+		socket.join(ident.room);
 	});
 
 	socket.on('cursor', function(cursor){
-		cursor.id = player.id;
-		io.to(player.room).emit('cursorUpdate', cursor);
+		if(player){
+			player.x = cursor.x;
+			player.y = cursor.y;
+		}
 	});
 
 	socket.on('disconnect', function(){
