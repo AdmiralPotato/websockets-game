@@ -14,7 +14,15 @@ var makeTicker = function(roomId){
 	return function(){
 		//console.log(roomId, 'tick');
 		var room = roomMap[roomId];
+		var drag = 0.95;
+		var cursorMultiplier = 0.05;
 		room.players.forEach(function(player){
+			player.xVel *= drag;
+			player.yVel *= drag;
+			player.xLast = player.x;
+			player.yLast = player.y;
+			player.x = asteroidsWrap(player.x + (player.xVel * cursorMultiplier));
+			player.y = asteroidsWrap(player.y + (player.yVel * cursorMultiplier));
 			var xDiff = player.x - player.xLast;
 			var yDiff = player.y - player.yLast;
 			player.angle = Math.atan2(yDiff, xDiff);
@@ -25,10 +33,10 @@ var makeTicker = function(roomId){
 var initialRoomState = function(roomId){
 	var room = {
 		players: [
-			{id: '0', x: -0.5, y: -0.5, xLast: 0, yLast: 0, angle: 0},
-			{id: '1', x:  0.5, y: -0.5, xLast: 0, yLast: 0, angle: 0},
-			{id: '2', x:  0.5, y:  0.5, xLast: 0, yLast: 0, angle: 0},
-			{id: '3', x: -0.5, y:  0.5, xLast: 0, yLast: 0, angle: 0}
+			{id: '0', x: -0.5, y: -0.5, xLast: 0, yLast: 0, angle: 0, xVel: 0, yVel: 0},
+			{id: '1', x:  0.5, y: -0.5, xLast: 0, yLast: 0, angle: 0, xVel: 0, yVel: 0},
+			{id: '2', x:  0.5, y:  0.5, xLast: 0, yLast: 0, angle: 0, xVel: 0, yVel: 0},
+			{id: '3', x: -0.5, y:  0.5, xLast: 0, yLast: 0, angle: 0, xVel: 0, yVel: 0}
 		]
 	};
 	roomMap[roomId] = room;
@@ -67,16 +75,12 @@ var handleConnection = function(socket){
 
 		socket.on('cursor', function(cursor){
 			if(player){
-				var xWrapped = asteroidsWrap(cursor.x);
-				var yWrapped = asteroidsWrap(cursor.y);
 				if(
-					xWrapped !== player.x &&
-					yWrapped !== player.y
+					player.xVel !== cursor.x &&
+					player.yVel !== cursor.y
 				){
-					player.xLast = player.x;
-					player.yLast = player.y;
-					player.x = xWrapped;
-					player.y = yWrapped;
+					player.xVel = cursor.x;
+					player.yVel = cursor.y;
 				}
 			}
 		});
