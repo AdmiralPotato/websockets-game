@@ -1,5 +1,29 @@
 var n = NPos3d;
-var scene = new n.Scene();
+var scene = new n.Scene({
+	lineWidth: 2
+});
+var gameBoard = new n.Ob3D({
+	shape: {
+		points: [
+			[-1, -1, 0],
+			[ 1, -1, 0],
+			[ 1,  1, 0],
+			[-1,  1, 0],
+		],
+		lines: [
+			[0, 1],
+			[1, 2],
+			[2, 3],
+			[3, 0]
+		]
+	}
+});
+gameBoard.update = function(){
+	var min = Math.min(scene.cx, scene.cy) - scene.lineWidth;
+	this.scale[0] = min;
+	this.scale[1] = min;
+};
+scene.add(gameBoard);
 var socket = io();
 var split = window.location.pathname.split("/start/")[1].split('-');
 
@@ -21,22 +45,17 @@ var shipMap = {};
 var getShipById = function(id){
 	var result = shipMap[id];
 	if(!result){
+		var shipScale = 0.005;
 		result = new n.Ob3D({
 			shape: shipShape,
 			pos: [0, 0, 0],
+			scale: [shipScale, shipScale, shipScale],
 			color: colorMap[id]
 		});
-		scene.add(result);
+		gameBoard.add(result);
 		shipMap[id] = result;
 	}
 	return result;
-};
-
-var encode = function(x){
-	return JSON.stringify(x);
-};
-var decode = function(x){
-	return JSON.parse(x);
 };
 var shipShape = {
 	points: [
@@ -70,18 +89,17 @@ socket.on('tick', function(room){
 		var ship = getShipById(player.id);
 		ship.pos[0] = player.x;
 		ship.pos[1] = player.y;
+		ship.rot[2] = player.angle;
 	});
 });
 
 
 var clickHandler = function(e){
-	socket.emit(
-		'cursor',
-		{
-			x: scene.mpos.x,
-			y: scene.mpos.y
-		}
-	);
+	var cursor = {
+		x: scene.mpos.x / gameBoard.scale[0],
+		y: scene.mpos.y / gameBoard.scale[0]
+	};
+	socket.emit('cursor',cursor);
 };
 
 $('*').on('click mousemove touchstart touchmove', clickHandler);

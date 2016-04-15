@@ -9,22 +9,26 @@ app.get('/resume-game/start/[a-z]-[0-3]', function(req, res){
 
 app.use(express.static('public'));
 
-
 var roomMap = {};
 var makeTicker = function(roomId){
 	return function(){
 		//console.log(roomId, 'tick');
 		var room = roomMap[roomId];
+		room.players.forEach(function(player){
+			var xDiff = player.x - player.xLast;
+			var yDiff = player.y - player.yLast;
+			player.angle = Math.atan2(yDiff, xDiff);
+		});
 		io.to(roomId).emit('tick', room);
 	}
 };
 var initialRoomState = function(roomId){
 	var room = {
 		players: [
-			{id: '0', x: -100, y: -100, score: 0},
-			{id: '1', x:  100, y: -100, score: 0},
-			{id: '2', x:  100, y:  100, score: 0},
-			{id: '3', x: -100, y:  100, score: 0}
+			{id: '0', x: -0.5, y: -0.5, xLast: 0, yLast: 0, angle: 0},
+			{id: '1', x:  0.5, y: -0.5, xLast: 0, yLast: 0, angle: 0},
+			{id: '2', x:  0.5, y:  0.5, xLast: 0, yLast: 0, angle: 0},
+			{id: '3', x: -0.5, y:  0.5, xLast: 0, yLast: 0, angle: 0}
 		]
 	};
 	roomMap[roomId] = room;
@@ -37,6 +41,15 @@ initialRoomState('b');
 initialRoomState('c');
 initialRoomState('d');
 
+
+var asteroidsWrap = function(n){
+	var x = n;
+	if(Math.abs(n) > 1){
+		var inverseSign = (Math.abs(n) / n) * -1;
+		x += inverseSign * 2;
+	}
+	return x;
+};
 
 var handleConnection = function(socket){
 	try {
@@ -54,8 +67,17 @@ var handleConnection = function(socket){
 
 		socket.on('cursor', function(cursor){
 			if(player){
-				player.x = cursor.x;
-				player.y = cursor.y;
+				var xWrapped = asteroidsWrap(cursor.x);
+				var yWrapped = asteroidsWrap(cursor.y);
+				if(
+					xWrapped !== player.x &&
+					yWrapped !== player.y
+				){
+					player.xLast = player.x;
+					player.yLast = player.y;
+					player.x = xWrapped;
+					player.y = yWrapped;
+				}
 			}
 		});
 
