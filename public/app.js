@@ -42,20 +42,27 @@ var colorMap = {
 	'3': '#09f'
 };
 var shipMap = {};
+var scoreMap = {};
 var getShipById = function(id){
-	var result = shipMap[id];
-	if(!result){
+	var ship = shipMap[id];
+	if(!ship){
 		var shipScale = 0.005;
-		result = new n.Ob3D({
+		ship = new n.Ob3D({
 			shape: shipShape,
 			pos: [0, 0, 0],
 			scale: [shipScale, shipScale, shipScale],
 			color: colorMap[id]
 		});
-		gameBoard.add(result);
-		shipMap[id] = result;
+		shipMap[id] = ship;
+		scoreMap[id] = new n.VText({
+			string: "0",
+			pos: ship.pos,
+			scale: ship.scale
+		});
+		gameBoard.add(ship);
+		gameBoard.add(scoreMap[id]);
 	}
-	return result;
+	return ship;
 };
 var shipShape = {
 	points: [
@@ -90,6 +97,7 @@ socket.on('tick', function(room){
 		ship.pos[0] = player.x;
 		ship.pos[1] = player.y;
 		ship.rot[2] = player.angle;
+		scoreMap[player.id].string = "\n" + player.score;
 	});
 });
 

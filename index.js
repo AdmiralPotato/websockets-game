@@ -10,6 +10,9 @@ app.get('/resume-game/start/[a-z]-[0-3]', function(req, res){
 app.use(express.static('public'));
 
 var roomMap = {};
+var makeRandomCollider = function(){
+	return {x: Math.random() * 2 - 1, y:  Math.random() * 2 - 1};
+};
 var makeTicker = function(roomId){
 	return function(){
 		//console.log(roomId, 'tick');
@@ -23,6 +26,7 @@ var makeTicker = function(roomId){
 			player.yLast = player.y;
 			player.x = asteroidsWrap(player.x + (player.xVel * cursorMultiplier));
 			player.y = asteroidsWrap(player.y + (player.yVel * cursorMultiplier));
+			player.score++;
 			var xDiff = player.x - player.xLast;
 			var yDiff = player.y - player.yLast;
 			player.angle = Math.atan2(yDiff, xDiff);
@@ -30,17 +34,23 @@ var makeTicker = function(roomId){
 		io.to(roomId).emit('tick', room);
 	}
 };
+var addColider = function(roomId){
+	//roomMap.colliders
+	//makeRandomCollider
+};
 var initialRoomState = function(roomId){
 	var room = {
 		players: [
-			{id: '0', x: -0.5, y: -0.5, xLast: 0, yLast: 0, angle: 0, xVel: 0, yVel: 0},
-			{id: '1', x:  0.5, y: -0.5, xLast: 0, yLast: 0, angle: 0, xVel: 0, yVel: 0},
-			{id: '2', x:  0.5, y:  0.5, xLast: 0, yLast: 0, angle: 0, xVel: 0, yVel: 0},
-			{id: '3', x: -0.5, y:  0.5, xLast: 0, yLast: 0, angle: 0, xVel: 0, yVel: 0}
-		]
+			{id: '0', x: -0.5, y: -0.5, angle: 0, score: 0, xLast: 0, yLast: 0, xVel: 0, yVel: 0},
+			{id: '1', x:  0.5, y: -0.5, angle: 0, score: 0, xLast: 0, yLast: 0, xVel: 0, yVel: 0},
+			{id: '2', x:  0.5, y:  0.5, angle: 0, score: 0, xLast: 0, yLast: 0, xVel: 0, yVel: 0},
+			{id: '3', x: -0.5, y:  0.5, angle: 0, score: 0, xLast: 0, yLast: 0, xVel: 0, yVel: 0}
+		],
+		colliders: []
 	};
 	roomMap[roomId] = room;
 	setInterval(makeTicker(roomId), 1000/40);
+	//setInterval(addCollider(roomId), 1000 * 5);
 	return room;
 };
 
@@ -95,6 +105,6 @@ var handleConnection = function(socket){
 
 io.on('connection', handleConnection);
 
-http.listen(1027, function(){
-	console.log('listening on *:1027');
+http.listen(3000, function(){
+	console.log('listening on *:3000');
 });
