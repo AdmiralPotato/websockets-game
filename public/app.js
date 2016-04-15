@@ -91,6 +91,50 @@ var shipShape = {
 	]
 };
 
+var cs = 0.001;
+var colliderScale = [cs, cs, cs];
+var colliderUpdate = function(){
+	this.rot[0] += 0.01;
+	this.rot[1] += 0.01;
+};
+var colliderDisplayList = [];
+var addCollider = function(colliderData){
+	var colliderDisplay = new n.Ob3D({scale: colliderScale});
+	colliderDisplay.id = colliderData.id;
+	colliderDisplay.update = colliderUpdate;
+	colliderDisplay.pos[0] = colliderData.x;
+	colliderDisplay.pos[1] = colliderData.y;
+	colliderDisplayList.push(colliderDisplay);
+	gameBoard.add(colliderDisplay);
+};
+var removeExpiredColliderDisplays = function(nextColliderList){
+	var nextColliderDisplayList = [];
+	colliderDisplayList.forEach(function(colliderDisplay){
+		var inList = false;
+		for (var i = 0; i < nextColliderList.length && !inList; i++) {
+			var colliderData = nextColliderList[i];
+			inList = colliderDisplay.id === colliderData.id;
+			nextColliderDisplayList.push(colliderDisplay);
+		}
+		if(!inList){
+			colliderDisplay.expired = true;
+		}
+	});
+	colliderDisplayList = nextColliderDisplayList;
+};
+var addNewColliders = function(nextColliderList){
+	nextColliderList.forEach(function(colliderData){
+		var inList = false;
+		for (var i = 0; i < colliderDisplayList.length && !inList; i++) {
+			var colliderDisplay = colliderDisplayList[i];
+			inList = colliderDisplay.id === colliderData.id;
+		}
+		if(!inList){
+			addCollider(colliderData);
+		}
+	});
+};
+
 socket.on('tick', function(room){
 	room.players.forEach(function(player){
 		var ship = getShipById(player.id);
@@ -99,6 +143,8 @@ socket.on('tick', function(room){
 		ship.rot[2] = player.angle;
 		scoreMap[player.id].string = "\n" + player.score;
 	});
+	removeExpiredColliderDisplays(room.colliders);
+	addNewColliders(room.colliders);
 });
 
 
