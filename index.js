@@ -11,7 +11,31 @@ app.use(express.static('public'));
 
 var roomMap = {};
 var makeRandomCollider = function(){
-	return {x: Math.random() * 2 - 1, y:  Math.random() * 2 - 1};
+	return {
+		id: Math.random(),
+		x: Math.random() * 2 - 1,
+		y: Math.random() * 2 - 1
+	};
+};
+var intersectColliders = function(room){
+	var nextColliders = [];
+	var hitRadius = 0.05;
+	room.colliders.forEach(function(collider) {
+		var hit = false;
+		room.players.forEach(function(player) {
+			var xDiff = collider.x - player.x;
+			var yDiff = collider.y - player.y;
+			var distance = Math.sqrt((xDiff * xDiff) + (yDiff * yDiff));
+			if(distance < hitRadius){
+				hit = true;
+				player.score++;
+			}
+		});
+		if(!hit){
+			nextColliders.push(collider);
+		}
+	});
+	room.colliders = nextColliders;
 };
 var makeTicker = function(roomId){
 	return function(){
@@ -26,17 +50,18 @@ var makeTicker = function(roomId){
 			player.yLast = player.y;
 			player.x = asteroidsWrap(player.x + (player.xVel * cursorMultiplier));
 			player.y = asteroidsWrap(player.y + (player.yVel * cursorMultiplier));
-			player.score++;
 			var xDiff = player.x - player.xLast;
 			var yDiff = player.y - player.yLast;
 			player.angle = Math.atan2(yDiff, xDiff);
 		});
+		intersectColliders(room);
 		io.to(roomId).emit('tick', room);
 	}
 };
-var addColider = function(roomId){
-	//roomMap.colliders
-	//makeRandomCollider
+var makeColliderAdder = function(roomId){
+	return function(){
+		roomMap[roomId].colliders.push(makeRandomCollider());
+	}
 };
 var initialRoomState = function(roomId){
 	var room = {
@@ -50,7 +75,7 @@ var initialRoomState = function(roomId){
 	};
 	roomMap[roomId] = room;
 	setInterval(makeTicker(roomId), 1000/40);
-	//setInterval(addCollider(roomId), 1000 * 5);
+	setInterval(makeColliderAdder(roomId), 1000 * 5);
 	return room;
 };
 
