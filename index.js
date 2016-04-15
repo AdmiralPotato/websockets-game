@@ -3,7 +3,7 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-app.get('/start/[a-z]-[0-3]', function(req, res){
+app.get('/resume-game/start/[a-z]-[0-3]', function(req, res){
 	res.sendfile('public/play.html');
 });
 
@@ -64,6 +64,6 @@ var handleConnection = function(socket){
 };
 io.on('connection', handleConnection);
 
-http.listen(3000, function(){
-	console.log('listening on *:3000');
+http.listen(1027, function(){
+	console.log('listening on *:1027');
 });
