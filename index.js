@@ -39,29 +39,34 @@ initialRoomState('d');
 
 
 var handleConnection = function(socket){
-	console.log('a user connected');
-	var ident;
-	var room;
-	var player;
-	socket.on('init', function(p){
-		ident = p;
-		var playerIndex = parseInt(ident.id, 10);
-		room = roomMap[ident.room];
-		player = room.players[playerIndex];
-		socket.join(ident.room);
-	});
+	try {
+		console.log('a user connected');
+		var ident;
+		var room;
+		var player;
+		socket.on('init', function(p){
+			ident = p;
+			var playerIndex = parseInt(ident.id, 10);
+			room = roomMap[ident.room];
+			player = room.players[playerIndex];
+			socket.join(ident.room);
+		});
 
-	socket.on('cursor', function(cursor){
-		if(player){
-			player.x = cursor.x;
-			player.y = cursor.y;
-		}
-	});
+		socket.on('cursor', function(cursor){
+			if(player){
+				player.x = cursor.x;
+				player.y = cursor.y;
+			}
+		});
 
-	socket.on('disconnect', function(){
-		console.log('user disconnected');
-	});
+		socket.on('disconnect', function(){
+			console.log('user disconnected');
+		});
+	} catch (e){
+		console.log(e);
+	}
 };
+
 io.on('connection', handleConnection);
 
 http.listen(1027, function(){
