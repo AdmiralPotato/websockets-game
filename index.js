@@ -60,7 +60,10 @@ var makeTicker = function(roomId){
 };
 var makeColliderAdder = function(roomId){
 	return function(){
-		roomMap[roomId].colliders.push(makeRandomCollider());
+		var colliders = roomMap[roomId].colliders;
+		if(colliders.length < 20){
+			colliders.push(makeRandomCollider());
+		}
 	}
 };
 var initialRoomState = function(roomId){
