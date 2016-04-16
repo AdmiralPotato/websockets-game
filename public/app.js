@@ -94,8 +94,8 @@ var shipShape = {
 var cs = 0.001;
 var colliderScale = [cs, cs, cs];
 var colliderUpdate = function(){
-	this.rot[0] += 0.01;
-	this.rot[1] += 0.01;
+	this.rot[0] += 0.02;
+	this.rot[1] += 0.02;
 };
 var colliderDisplayList = [];
 var addCollider = function(colliderData){
@@ -107,35 +107,38 @@ var addCollider = function(colliderData){
 	colliderDisplayList.push(colliderDisplay);
 	gameBoard.add(colliderDisplay);
 };
-var removeExpiredColliderDisplays = function(nextColliderList){
-	var nextColliderDisplayList = [];
-	colliderDisplayList.forEach(function(colliderDisplay){
-		var inList = false;
-		for (var i = 0; i < nextColliderList.length && !inList; i++) {
-			var colliderData = nextColliderList[i];
-			inList = colliderDisplay.id === colliderData.id;
-			nextColliderDisplayList.push(colliderDisplay);
+var intersectArraysById = function(listA, listB){
+	var intersection = [];
+	var notFound = [];
+	listA.forEach(function(a){
+		var aInB = false;
+		for (var i = 0; i < listB.length && !aInB; i++) {
+			var b = listB[i];
+			aInB = a.id === b.id;
 		}
-		if(!inList){
-			colliderDisplay.expired = true;
-		}
-	});
-	colliderDisplayList = nextColliderDisplayList;
-};
-var addNewColliders = function(nextColliderList){
-	nextColliderList.forEach(function(colliderData){
-		var inList = false;
-		for (var i = 0; i < colliderDisplayList.length && !inList; i++) {
-			var colliderDisplay = colliderDisplayList[i];
-			inList = colliderDisplay.id === colliderData.id;
-		}
-		if(!inList){
-			addCollider(colliderData);
+		if(aInB){
+			intersection.push(a);
+		} else {
+			notFound.push(a);
 		}
 	});
+	return {
+		intersection: intersection,
+		notFound: notFound
+	};
 };
 
 socket.on('tick', function(room){
+	var intersectedNew = intersectArraysById(room.colliders, colliderDisplayList);
+	var intersectedOld = intersectArraysById(colliderDisplayList, room.colliders);
+	colliderDisplayList = intersectedOld.intersection;
+	intersectedNew.notFound.forEach(function(colliderData){
+		addCollider(colliderData);
+	});
+	intersectedOld.notFound.forEach(function(colliderDisplay){
+		colliderDisplay.expired = true;
+	});
+
 	room.players.forEach(function(player){
 		var ship = getShipById(player.id);
 		ship.pos[0] = player.x;
@@ -143,8 +146,6 @@ socket.on('tick', function(room){
 		ship.rot[2] = player.angle;
 		scoreMap[player.id].string = "\n" + player.score;
 	});
-	removeExpiredColliderDisplays(room.colliders);
-	addNewColliders(room.colliders);
 });
 
 
