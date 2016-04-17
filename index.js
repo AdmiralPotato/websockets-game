@@ -44,15 +44,17 @@ var makeTicker = function(roomId){
 		var drag = 0.95;
 		var cursorMultiplier = 0.05;
 		room.players.forEach(function(player){
-			player.xVel *= drag;
-			player.yVel *= drag;
-			player.xLast = player.x;
-			player.yLast = player.y;
-			player.x = asteroidsWrap(player.x + (player.xVel * cursorMultiplier));
-			player.y = asteroidsWrap(player.y + (player.yVel * cursorMultiplier));
-			var xDiff = player.x - player.xLast;
-			var yDiff = player.y - player.yLast;
-			player.angle = Math.atan2(yDiff, xDiff);
+			if(Math.abs(player.xVel) + Math.abs(player.xVel) > 0.0001){
+				player.xVel *= drag;
+				player.yVel *= drag;
+				player.xLast = player.x;
+				player.yLast = player.y;
+				player.x = asteroidsWrap(player.x + (player.xVel * cursorMultiplier));
+				player.y = asteroidsWrap(player.y + (player.yVel * cursorMultiplier));
+				var xDiff = player.x - player.xLast;
+				var yDiff = player.y - player.yLast;
+				player.angle = Math.atan2(yDiff, xDiff);
+			}
 		});
 		intersectColliders(room);
 		io.to(roomId).emit('tick', room);
@@ -78,7 +80,7 @@ var initialRoomState = function(roomId){
 	};
 	roomMap[roomId] = room;
 	setInterval(makeTicker(roomId), 1000/40);
-	setInterval(makeColliderAdder(roomId), 1000 * 5);
+	setInterval(makeColliderAdder(roomId), 1000 * 3);
 	return room;
 };
 
