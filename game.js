@@ -10,6 +10,7 @@ var Game = function(io){
 	var intersectColliders = function(room){
 		var nextColliders = [];
 		var hitRadius = 0.05;
+		var winningScore = 20;
 		room.colliders.forEach(function(collider) {
 			var hit = false;
 			room.players.forEach(function(player) {
@@ -19,6 +20,9 @@ var Game = function(io){
 				if(distance < hitRadius){
 					hit = true;
 					player.score++;
+					if(player.score >= winningScore){
+						initializeRoomById(room.id)
+					}
 				}
 			});
 			if(!hit){
@@ -27,25 +31,28 @@ var Game = function(io){
 		});
 		room.colliders = nextColliders;
 	};
+	var movePlayers = function(room){
+		var drag = 0.95;
+		var cursorMultiplier = 0.05;
+		room.players.forEach(function(player){
+			if(Math.abs(player.xVel) + Math.abs(player.xVel) > 0.0001){
+				player.xVel *= drag;
+				player.yVel *= drag;
+				player.xLast = player.x;
+				player.yLast = player.y;
+				player.x = asteroidsWrap(player.x + (player.xVel * cursorMultiplier));
+				player.y = asteroidsWrap(player.y + (player.yVel * cursorMultiplier));
+				var xDiff = player.x - player.xLast;
+				var yDiff = player.y - player.yLast;
+				player.angle = Math.atan2(yDiff, xDiff);
+			}
+		});
+	};
 	var makeTicker = function(roomId){
 		return function(){
 			//console.log(roomId, 'tick');
 			var room = roomMap[roomId];
-			var drag = 0.95;
-			var cursorMultiplier = 0.05;
-			room.players.forEach(function(player){
-				if(Math.abs(player.xVel) + Math.abs(player.xVel) > 0.0001){
-					player.xVel *= drag;
-					player.yVel *= drag;
-					player.xLast = player.x;
-					player.yLast = player.y;
-					player.x = asteroidsWrap(player.x + (player.xVel * cursorMultiplier));
-					player.y = asteroidsWrap(player.y + (player.yVel * cursorMultiplier));
-					var xDiff = player.x - player.xLast;
-					var yDiff = player.y - player.yLast;
-					player.angle = Math.atan2(yDiff, xDiff);
-				}
-			});
+			movePlayers(room);
 			intersectColliders(room);
 			io.to(roomId).emit('tick', room);
 		}
@@ -58,8 +65,9 @@ var Game = function(io){
 			}
 		}
 	};
-	var initialRoomState = function(roomId){
+	var initializeRoomById = function(roomId){
 		var room = {
+			id: roomId,
 			players: [
 				{id: '0', x: -0.5, y: -0.5, angle: 0, score: 0, xLast: 0, yLast: 0, xVel: 0, yVel: 0},
 				{id: '1', x:  0.5, y: -0.5, angle: 0, score: 0, xLast: 0, yLast: 0, xVel: 0, yVel: 0},
@@ -69,9 +77,11 @@ var Game = function(io){
 			colliders: []
 		};
 		roomMap[roomId] = room;
+	};
+	var initialRoomState = function(roomId){
+		initializeRoomById(roomId);
 		setInterval(makeTicker(roomId), 1000/40);
 		setInterval(makeColliderAdder(roomId), 1000 * 3);
-		return room;
 	};
 
 	var asteroidsWrap = function(n){
