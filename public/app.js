@@ -149,7 +149,7 @@ socket.on('tick', function(room){
 		ship.pos[0] = player.x;
 		ship.pos[1] = player.y;
 		ship.rot[2] = player.angle;
-		scoreMap[player.id].string = "\n" + player.score;
+		scoreMap[player.id].string = "\n" + (player.message || player.score);
 	});
 });
 

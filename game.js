@@ -11,9 +11,12 @@ var Game = function(io){
 		var nextColliders = [];
 		var hitRadius = 0.05;
 		var winningScore = 20;
-		room.colliders.forEach(function(collider) {
+		var gameOver = false;
+		for (var i = 0; i < room.colliders.length && !gameOver; i++) {
+			var collider = room.colliders[i];
 			var hit = false;
-			room.players.forEach(function(player) {
+			for (var j = 0; j < room.players.length && !gameOver; j++) {
+				var player = room.players[j];
 				var xDiff = collider.x - player.x;
 				var yDiff = collider.y - player.y;
 				var distance = Math.sqrt((xDiff * xDiff) + (yDiff * yDiff));
@@ -21,17 +24,32 @@ var Game = function(io){
 					hit = true;
 					player.score++;
 					if(player.score >= winningScore){
-						initializeRoomById(room.id)
+						gameOver = true;
+						resetGame(room.id, player);
 					}
 				}
-			});
-			if(!hit){
+			}
+			if(!hit && !gameOver){
 				nextColliders.push(collider);
 			}
-		});
-		room.colliders = nextColliders;
+		}
+		if(!gameOver){
+			room.colliders = nextColliders;
+		}
 	};
-	var movePlayers = function(room){
+	var resetGame = function(roomId, winningPlayer){
+		var room = roomMap[roomId];
+		room.players.forEach(function(player){
+			player.score = 0;
+		});
+		if(winningPlayer){
+			winningPlayer.messageCountdown = 80;
+			winningPlayer.message = "Winner!";
+		}
+		room.colliders.length = 0;
+
+	};
+	var updatePlayers = function(room){
 		var drag = 0.95;
 		var cursorMultiplier = 0.05;
 		room.players.forEach(function(player){
@@ -45,6 +63,12 @@ var Game = function(io){
 				var xDiff = player.x - player.xLast;
 				var yDiff = player.y - player.yLast;
 				player.angle = Math.atan2(yDiff, xDiff);
+				if(player.messageCountdown){
+					player.messageCountdown--;
+				} else {
+					player.messageCountdown = undefined;
+					player.message = undefined;
+				}
 			}
 		});
 	};
@@ -52,7 +76,7 @@ var Game = function(io){
 		return function(){
 			//console.log(roomId, 'tick');
 			var room = roomMap[roomId];
-			movePlayers(room);
+			updatePlayers(room);
 			intersectColliders(room);
 			io.to(roomId).emit('tick', room);
 		}
