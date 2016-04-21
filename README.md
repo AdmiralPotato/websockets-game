@@ -1,5 +1,5 @@
 # resume-game
-Making a mini-game the night before a meet-and-greet to look like a badass to employers
+Making a mini-game to start playing with some websockets goodness. A live copy can be played at the URLs below.
 
 ## Totally need some QR entry points
 https://qrcode.littleidiot.be/
