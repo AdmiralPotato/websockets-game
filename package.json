@@ -4,7 +4,8 @@
   "description": "Making a mini-game the night before a meet-and-greet to look like a badass to employers",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "forever start index.js",
+    "stop": "forever stop index.js"
   },
   "repository": {
     "type": "git",
