@@ -1,7 +1,8 @@
 var n = NPos3d;
 var scene = new n.Scene({
 	lineWidth: 2,
-	backgroundColor: 'rgba(0,0,0,0.5)'
+	backgroundColor: 'rgba(0,0,0,0.5)',
+	forceRealPixels: false
 });
 var gameBoardHolder = new n.Ob3D({shape: {}});
 gameBoardHolder.update = function(){
