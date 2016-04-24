@@ -1,5 +1,5 @@
 var socket = io();
-var split = window.location.pathname.split("/start/")[1].split('-');
+var split = window.location.pathname.split("/").pop().split('-');
 socket.emit(
 	'init',
 	{
@@ -13,8 +13,8 @@ socket.on('tick', room.tick);
 
 var clickHandler = function(e){
 	var cursor = {
-		x: scene.mpos.x / room.gameBoard.scale[0] * 2,
-		y: scene.mpos.y / room.gameBoard.scale[0] * 2
+		x: scene.mpos.x / gameBoardHolder.scale[0] * 2,
+		y: scene.mpos.y / gameBoardHolder.scale[0] * 2
 	};
 	socket.emit('cursor',cursor);
 };

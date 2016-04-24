@@ -3,19 +3,13 @@ var scene = new n.Scene({
 	lineWidth: 2,
 	backgroundColor: 'rgba(0,0,0,0.5)'
 });
-
-var GameBoard = function(args){
-	args = args || {};
-	n.blessWith3DBase(this, args);
+var gameBoardHolder = new n.Ob3D({shape: {}});
+gameBoardHolder.update = function(){
+	var min = (Math.min(scene.cx, scene.cy) - scene.lineWidth);
+	this.scale[0] = min;
+	this.scale[1] = min;
 };
-GameBoard.prototype = {
-	shape: shapes.gameBoard,
-	update: function(){
-		var min = (Math.min(scene.cx, scene.cy) - scene.lineWidth);
-		this.scale[0] = min;
-		this.scale[1] = min;
-	}
-};
+scene.add(gameBoardHolder);
 
 var Collider = function(args){
 	var t = this;
@@ -38,8 +32,8 @@ var Room = function(){
 	t.shipMap = {};
 	t.scoreMap = {};
 	t.colliderList = [];
-	t.gameBoard = new GameBoard();
-	scene.add(t.gameBoard);
+	t.gameBoard = new n.Ob3D({shape: shapes.gameBoard});
+	gameBoardHolder.add(t.gameBoard);
 
 	this.tick = function(roomData){
 		t.updateRoomByData(roomData);

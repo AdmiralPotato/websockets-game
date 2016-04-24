@@ -4,9 +4,12 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var game = require('./game.js')(io);
 
-app.get('/resume-game/start/[a-z]-[0-3]', function(req, res){
+var play = function(req, res){
 	res.sendfile('public/play.html');
-});
+};
+
+app.get('/resume-game/start/[a-z]-[0-3]', play); //matching some previously printed cards
+app.get('/[a-z]-[0-3]', play);
 
 app.use(express.static('public'));
 
