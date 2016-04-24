@@ -1,5 +1,6 @@
 var Game = function(io){
 	var roomMap = {};
+	var roomList = [];
 	var makeRandomCollider = function(){
 		return {
 			id: Math.random(),
@@ -72,15 +73,6 @@ var Game = function(io){
 			}
 		});
 	};
-	var makeTicker = function(roomId){
-		return function(){
-			//console.log(roomId, 'tick');
-			var room = roomMap[roomId];
-			updatePlayers(room);
-			intersectColliders(room);
-			io.to(roomId).emit('tick', room);
-		}
-	};
 	var makeColliderAdder = function(roomId){
 		return function(){
 			var colliders = roomMap[roomId].colliders;
@@ -101,12 +93,24 @@ var Game = function(io){
 			colliders: []
 		};
 		roomMap[roomId] = room;
+		roomList.push(room);
 	};
 	var initialRoomState = function(roomId){
 		initializeRoomById(roomId);
-		setInterval(makeTicker(roomId), 1000/40);
 		setInterval(makeColliderAdder(roomId), 1000 * 3);
 	};
+	var worldUpdateInterval = 1000/40;
+	setInterval(
+		function(){
+			roomList.forEach(function(room){
+				updatePlayers(room);
+				intersectColliders(room);
+				io.to(room.id).emit('tick', room);
+			});
+			io.to('watch').emit('tick', roomList);
+		},
+		worldUpdateInterval
+	);
 
 	var asteroidsWrap = function(n){
 		var x = n;
@@ -120,27 +124,30 @@ var Game = function(io){
 	var handleConnection = function(socket){
 		try {
 			console.log('a user connected');
-			var ident;
-			var room;
-			var player;
-			socket.on('init', function(p){
-				ident = p;
+
+			socket.on('init', function(ident){
+				var room;
+				var player;
 				var playerIndex = parseInt(ident.id, 10);
 				room = roomMap[ident.room];
 				player = room.players[playerIndex];
 				socket.join(ident.room);
+				socket.on('cursor', function(cursor){
+					if(player){
+						if(
+							player.xVel !== cursor.x &&
+							player.yVel !== cursor.y
+						){
+							player.xVel = cursor.x;
+							player.yVel = cursor.y;
+						}
+					}
+				});
 			});
 
-			socket.on('cursor', function(cursor){
-				if(player){
-					if(
-						player.xVel !== cursor.x &&
-						player.yVel !== cursor.y
-					){
-						player.xVel = cursor.x;
-						player.yVel = cursor.y;
-					}
-				}
+			socket.on('watch', function(roomId){
+				var room = roomId || 'watch';
+				socket.join(room);
 			});
 
 			socket.on('disconnect', function(){
