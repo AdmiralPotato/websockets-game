@@ -8,8 +8,9 @@ var play = function(req, res){
 	res.sendfile('public/play.html');
 };
 
-app.get('/resume-game/start/[a-z]-[0-3]', play); //matching some previously printed cards
-app.get('/[a-z]-[0-3]', play);
+app.get('/resume-game/start/[a-d]-[0-3]', play); //matching some previously printed cards
+app.get('/[a-d]-[0-3]', play);
+app.get('/[a-d]', play);
 
 app.use(express.static('public'));
 

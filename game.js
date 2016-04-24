@@ -145,8 +145,9 @@ var Game = function(io){
 				});
 			});
 
-			socket.on('watch', function(){
-				socket.join('watch');
+			socket.on('watch', function(roomId){
+				var room = roomId || 'watch';
+				socket.join(room);
 			});
 
 			socket.on('disconnect', function(){
