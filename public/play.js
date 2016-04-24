@@ -14,28 +14,36 @@ if(split.length === 1){
 			id: split[1]
 		}
 	);
-	var joystickScale = 1;
-	var joystick = new n.Ob3D({
-		shape: shapes.joystick,
-		color: '#999',
-		scale: [joystickScale, joystickScale, joystickScale]
-	});
-	gameBoardHolder.add(joystick);
-	var isActive = false;
 	var cursor = { x: 0, y: 0 };
 	var joystickInfluence = pi / 8;
-	var onOffHandler = function(e){
-		if('mousedown touchstart'.indexOf(e.type) !== -1){
-			isActive = true;
-		} else {
-			isActive = false;
-		}
-	};
-	var moveHandler = function(e){
-		cursor.x = scene.mpos.x / gameBoardHolder.scale[0] * 2;
-		cursor.y = scene.mpos.y / gameBoardHolder.scale[0] * 2;
+	var joystick = new n.Ob3D({
+		shape: shapes.joystick,
+		color: '#999'
+	});
+	joystick.update = function(){
+		var gb = gameBoardHolder;
+		var scale = gb.min / 2;
+		joystick.scale[0] = scale;
+		joystick.scale[1] = scale;
+		joystick.scale[2] = scale;
+		joystick.pos[gb.smallerAxis] = 0;
+		joystick.pos[gb.offsetAxis] = gb.min;
 		joystick.rot[0] = cursor.y * -joystickInfluence;
 		joystick.rot[1] = cursor.x * joystickInfluence;
+	};
+	scene.add(joystick);
+	var isActive = false;
+	var onOffHandler = function(e){
+		isActive = 'mousedown keydown touchstart'.indexOf(e.type) !== -1;
+	};
+	var axisList = ['x', 'y'];
+	var moveHandler = function(e){
+		var gb = gameBoardHolder;
+		var scale = gb.scale[0]
+		var xOffset = !gb.offsetAxis ? gb.min: 0;
+		var yOffset = gb.min - xOffset;
+		cursor.x = (scene.mpos.x - xOffset) / scale * 2;
+		cursor.y = (scene.mpos.y - yOffset) / scale * 2;
 	};
 	var cursorEmitter = function(){
 		if(isActive){
@@ -44,5 +52,5 @@ if(split.length === 1){
 	};
 	setInterval(cursorEmitter, 1000 / 40);
 	$('*').on('click mousemove touchstart touchmove', moveHandler);
-	$('*').on('mousedown mouseup touchstart touchend', onOffHandler);
+	$('*').on('mousedown mouseup mouseout keydown keyup touchstart touchend', onOffHandler);
 }
