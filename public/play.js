@@ -14,12 +14,35 @@ if(split.length === 1){
 			id: split[1]
 		}
 	);
-	var clickHandler = function(e){
-		var cursor = {
-			x: scene.mpos.x / gameBoardHolder.scale[0] * 2,
-			y: scene.mpos.y / gameBoardHolder.scale[0] * 2
-		};
-		socket.emit('cursor',cursor);
+	var joystickScale = 1;
+	var joystick = new n.Ob3D({
+		shape: shapes.joystick,
+		color: '#999',
+		scale: [joystickScale, joystickScale, joystickScale]
+	});
+	gameBoardHolder.add(joystick);
+	var isActive = false;
+	var cursor = { x: 0, y: 0 };
+	var joystickInfluence = pi / 8;
+	var onOffHandler = function(e){
+		if('mousedown touchstart'.indexOf(e.type) !== -1){
+			isActive = true;
+		} else {
+			isActive = false;
+		}
 	};
-	$('*').on('click mousemove touchstart touchmove', clickHandler);
+	var moveHandler = function(e){
+		cursor.x = scene.mpos.x / gameBoardHolder.scale[0] * 2;
+		cursor.y = scene.mpos.y / gameBoardHolder.scale[0] * 2;
+		joystick.rot[0] = cursor.y * -joystickInfluence;
+		joystick.rot[1] = cursor.x * joystickInfluence;
+	};
+	var cursorEmitter = function(){
+		if(isActive){
+			socket.emit('cursor', cursor);
+		}
+	};
+	setInterval(cursorEmitter, 1000 / 40);
+	$('*').on('click mousemove touchstart touchmove', moveHandler);
+	$('*').on('mousedown mouseup touchstart touchend', onOffHandler);
 }
