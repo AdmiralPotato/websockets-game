@@ -1,25 +1,41 @@
-# resume-game
+# websockets-game
 Making a mini-game to start playing with some websockets goodness. A live copy can be played at the URLs below.
 
-## Totally need some QR entry points
-https://qrcode.littleidiot.be/
+Instructions for installation:
+```
+npm install -g forever
+npm install
+npm start
+```
 
-http://npxl.io/resume-game/start/a-0
-http://npxl.io/resume-game/start/a-1
-http://npxl.io/resume-game/start/a-2
-http://npxl.io/resume-game/start/a-3
+## See it live
+I'ma get some QR goodness all up in here sometime real soon, but for the moment, these URLs should work out for you just fine.
+* http://npxl.io/ - spectate all the rooms
 
-http://npxl.io/resume-game/start/b-0
-http://npxl.io/resume-game/start/b-1
-http://npxl.io/resume-game/start/b-2
-http://npxl.io/resume-game/start/b-3
+###Room A
+* http://npxl.io/a - spectate only room A
+* http://npxl.io/a-0 - red
+* http://npxl.io/a-1 - yellow
+* http://npxl.io/a-2 - green
+* http://npxl.io/a-3 - blue
 
-http://npxl.io/resume-game/start/c-0
-http://npxl.io/resume-game/start/c-1
-http://npxl.io/resume-game/start/c-2
-http://npxl.io/resume-game/start/c-3
+###Room B
+* http://npxl.io/b - spectate only room B
+* http://npxl.io/b-0 - red
+* http://npxl.io/b-1 - yellow
+* http://npxl.io/b-2 - green
+* http://npxl.io/b-3 - blue
 
-http://npxl.io/resume-game/start/d-0
-http://npxl.io/resume-game/start/d-1
-http://npxl.io/resume-game/start/d-2
-http://npxl.io/resume-game/start/d-3
+###Room C
+* http://npxl.io/c - spectate only room C
+* http://npxl.io/c-0 - red
+* http://npxl.io/c-1 - yellow
+* http://npxl.io/c-2 - green
+* http://npxl.io/c-3 - blue
+
+###Room D
+* http://npxl.io/d - spectate only room D
+* http://npxl.io/d-0 - red
+* http://npxl.io/d-1 - yellow
+* http://npxl.io/d-2 - green
+* http://npxl.io/d-3 - blue
