@@ -1,3 +1,5 @@
+var Persist = require('./persist.js');
+
 var Game = function(io){
 	var roomMap = {};
 	var roomList = [];
@@ -24,6 +26,7 @@ var Game = function(io){
 				if(distance < hitRadius){
 					hit = true;
 					player.score++;
+					Persist.recordPoint(room, player);
 					if(player.score >= winningScore){
 						gameOver = true;
 						resetGame(room.id, player);
@@ -48,6 +51,7 @@ var Game = function(io){
 			winningPlayer.message = "Winner!";
 		}
 		room.colliders.length = 0;
+		room.gameId = Persist.getNewGameId();
 
 	};
 	var updatePlayers = function(room){
@@ -84,6 +88,7 @@ var Game = function(io){
 	var initializeRoomById = function(roomId){
 		var room = {
 			id: roomId,
+			gameId: Persist.getNewGameId(),
 			players: [
 				{id: '0', x: -0.5, y: -0.5, angle: 0, score: 0, xLast: 0, yLast: 0, xVel: 0, yVel: 0},
 				{id: '1', x:  0.5, y: -0.5, angle: 0, score: 0, xLast: 0, yLast: 0, xVel: 0, yVel: 0},

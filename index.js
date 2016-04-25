@@ -12,6 +12,10 @@ app.get('/resume-game/start/[a-d]-[0-3]', play); //matching some previously prin
 app.get('/[a-d]-[0-3]', play);
 app.get('/[a-d]', play);
 
+app.get('/data.json', function(req, res){
+	res.sendfile('websockets-game-data.json');
+});
+
 app.use(express.static('public'));
 
 http.listen(3000, function(){
