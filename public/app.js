@@ -1,13 +1,24 @@
 var n = NPos3d;
 var scene = new n.Scene({
 	lineWidth: 2,
-	backgroundColor: 'rgba(0,0,0,0.5)'
+	backgroundColor: 'rgba(0,0,0,0.5)',
+	forceRealPixels: false
 });
 var gameBoardHolder = new n.Ob3D({shape: {}});
+gameBoardHolder.shouldOffset = false;
 gameBoardHolder.update = function(){
-	var min = (Math.min(scene.cx, scene.cy) - scene.lineWidth);
-	this.scale[0] = min;
-	this.scale[1] = min;
+	this.min = Math.min(scene.cx, scene.cy);
+	if(this.shouldOffset){
+		this.max = Math.max(scene.cx, scene.cy);
+		this.smallerAxis = this.min === scene.cy ? 1 : 0;
+		this.offsetAxis = 1 - this.smallerAxis;
+		this.pos[this.smallerAxis] = 0;
+		this.pos[this.offsetAxis] = -(this.max - this.min);
+	}
+	var scale = this.min - scene.lineWidth;
+	this.scale[0] = scale;
+	this.scale[1] = scale;
+	this.scale[2] = scale;
 };
 scene.add(gameBoardHolder);
 
