@@ -14,6 +14,7 @@ if(split.length === 1){
 			id: split[1]
 		}
 	);
+	gameBoardHolder.shouldOffset = true;
 	var cursor = { x: 0, y: 0 };
 	var joystickInfluence = pi / 9;
 	var joystick = new n.Ob3D({
