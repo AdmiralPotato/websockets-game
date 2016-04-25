@@ -1,5 +1,5 @@
 var JsonDB = require('node-json-db');
-var db = new JsonDB("websockets-game-data", false, false);
+var db = new JsonDB("websockets-game-data", false, true);
 var lastGameId = 0;
 try {
 	lastGameId = db.getData("/lastGameId");
@@ -17,15 +17,18 @@ var Persist = {
 		db.save();
 		return id;
 	},
-	recordPoint: function(room, player) {
+	recordPoint: function(room, player, collider) {
+		collider = collider || {x: 0, y: 0};
 		db.push(
 			"/pointList[]",
 			{
-				gameId: room.gameId,
-				roomId: room.id,
-				playerId: player.id,
-				playerScore: player.score,
-				timestamp: new Date().getTime
+				game: room.gameId,
+				room: room.id,
+				player: player.id,
+				Score: player.score,
+				x: collider.x,
+				y: collider.y,
+				timestamp: new Date().getTime()
 			},
 			true
 		);

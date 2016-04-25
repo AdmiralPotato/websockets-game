@@ -26,10 +26,10 @@ var Game = function(io){
 				if(distance < hitRadius){
 					hit = true;
 					player.score++;
-					Persist.recordPoint(room, player);
+					Persist.recordPoint(room, player, collider);
 					if(player.score >= winningScore){
 						gameOver = true;
-						resetGame(room.id, player);
+						initGame(room.id, player);
 					}
 				}
 			}
@@ -41,18 +41,18 @@ var Game = function(io){
 			room.colliders = nextColliders;
 		}
 	};
-	var resetGame = function(roomId, winningPlayer){
+	var initGame = function(roomId, winningPlayer){
 		var room = roomMap[roomId];
+		room.gameId = Persist.getNewGameId();
 		room.players.forEach(function(player){
 			player.score = 0;
+			Persist.recordPoint(room, player);
 		});
 		if(winningPlayer){
 			winningPlayer.messageCountdown = 80;
 			winningPlayer.message = "Winner!";
 		}
 		room.colliders.length = 0;
-		room.gameId = Persist.getNewGameId();
-
 	};
 	var updatePlayers = function(room){
 		var drag = 0.95;
@@ -80,7 +80,7 @@ var Game = function(io){
 	var makeColliderAdder = function(roomId){
 		return function(){
 			var colliders = roomMap[roomId].colliders;
-			if(colliders.length < 20){
+			if(colliders.length < 10){
 				colliders.push(makeRandomCollider());
 			}
 		}
@@ -88,7 +88,7 @@ var Game = function(io){
 	var initializeRoomById = function(roomId){
 		var room = {
 			id: roomId,
-			gameId: Persist.getNewGameId(),
+			gameId: 0,
 			players: [
 				{id: '0', x: -0.5, y: -0.5, angle: 0, score: 0, xLast: 0, yLast: 0, xVel: 0, yVel: 0},
 				{id: '1', x:  0.5, y: -0.5, angle: 0, score: 0, xLast: 0, yLast: 0, xVel: 0, yVel: 0},
@@ -102,6 +102,7 @@ var Game = function(io){
 	};
 	var initialRoomState = function(roomId){
 		initializeRoomById(roomId);
+		initGame(roomId);
 		setInterval(makeColliderAdder(roomId), 1000 * 3);
 	};
 	var worldUpdateInterval = 1000/40;
