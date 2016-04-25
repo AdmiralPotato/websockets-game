@@ -20,6 +20,7 @@
   "dependencies": {
     "express": "^4.13.4",
     "express-session": "^1.13.0",
+    "node-json-db": "^0.7.2",
     "socket.io": "^1.4.5"
   }
 }

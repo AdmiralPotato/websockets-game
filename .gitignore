@@ -34,3 +34,4 @@ node_modules
 
 *.iml
 .idea
+websockets-game-data.json
