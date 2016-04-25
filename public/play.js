@@ -15,30 +15,31 @@ if(split.length === 1){
 		}
 	);
 	var cursor = { x: 0, y: 0 };
-	var joystickInfluence = pi / 8;
-	var joystockHolder = new n.Ob3D({shape: {}});
-	joystockHolder.update = function() {
-		var gb = gameBoardHolder;
-		this.pos[gb.smallerAxis] = 0;
-		this.pos[gb.offsetAxis] = gb.min;
-		n.Maths.pointAt(this, scene.camera.pos);
-	};
-	scene.add(joystockHolder);
+	var joystickInfluence = pi / 9;
 	var joystick = new n.Ob3D({
 		shape: shapes.joystick,
-		color: '#999',
-		rotOrder: [2,1,0]
+		color: '#999'
 	});
 	joystick.update = function(){
 		var gb = gameBoardHolder;
-		var scale = gb.min / 2;
+		var scale = gb.max - gb.min;
+		this.pos[gb.smallerAxis] = 0;
+		this.pos[gb.offsetAxis] = gb.min;
 		this.scale[0] = scale;
 		this.scale[1] = scale;
 		this.scale[2] = scale;
-		this.rot[0] = cursor.x * -joystickInfluence;
-		this.rot[1] = cursor.y * -joystickInfluence + (pi / 2);
+		this.rot[0] = cursor.y * -joystickInfluence;
+		this.rot[1] = cursor.x * joystickInfluence;
+		//point it at the cammera a little more
+		if(gb.smallerAxis === 0){
+			this.rot[0] += gb.max / gb.min / 6;
+			this.rotOrder = [0, 1, 2];
+		} else {
+			this.rot[1] += gb.max / gb.min / 6 * -1;
+			this.rotOrder = [2, 1, 0];
+		}
 	};
-	joystockHolder.add(joystick);
+	scene.add(joystick);
 	var isActive = false;
 	var onOffHandler = function(e){
 		isActive = 'mousedown keydown touchstart'.indexOf(e.type) !== -1;
