@@ -4,6 +4,13 @@ var dataShapeList = [];
 var colorMap = Room.prototype.shipColorMap;
 var cursor = { x: 0, y: 0 };
 var lastDisplayedShapeIndex = 0;
+var selectGameId = document.getElementById('gameId');
+var selectDisplayStyle = document.getElementById('displayStyle');
+var gameIdChangeHandler = function(e){
+	lastDisplayedShapeIndex = parseInt(e.target.value, 10);
+};
+selectGameId.onchange = gameIdChangeHandler;
+
 var dataDisplayObject = new n.Ob3D({
 	shape: {},
 	renderStyle: 'both',
@@ -40,6 +47,11 @@ socket.on('data', function(data) {
 					shape.lines.push([index - 1, index, color]);
 				}
 			});
+			var option = document.createElement('option');
+			option.innerText = game.id;
+			option.value = dataShapeList.length; //because we're filtering empty games
+			selectGameId.appendChild(option);
+			selectGameId.value = option.value;
 			dataShapeList.push(shape);
 		}
 	});
@@ -59,8 +71,4 @@ var moveHandler = function(e){
 	cursor.x = (scene.mpos.x - xOffset) / scale * 2;
 	cursor.y = (scene.mpos.y - yOffset) / scale * 2;
 };
-var clickHandler = function(){
-	lastDisplayedShapeIndex = (lastDisplayedShapeIndex + 1) % dataShapeList.length
-};
 $('*').on('click mousemove touchstart touchmove', moveHandler);
-$('*').on('click', clickHandler);

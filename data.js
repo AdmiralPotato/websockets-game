@@ -1,7 +1,7 @@
 var Data = function(io, persist){
-	var pointList = persist.getPointList();
 	var gameMap = {};
 	var gameList = [];
+	var pointList = [];
 	var getGameById = function(id){
 		var result = gameMap[id];
 		if(!result){
@@ -17,6 +17,9 @@ var Data = function(io, persist){
 		return result;
 	};
 	var buildGameMap = function(){
+		gameMap = {};
+		gameList = [];
+		pointList = persist.getPointList();
 		pointList.forEach(function(point){
 			var game = getGameById(point.game);
 			game.pointList.push(point);
@@ -29,8 +32,8 @@ var Data = function(io, persist){
 			}
 		});
 	};
-	buildGameMap();
 	var handleConnection = function(socket){
+		buildGameMap();
 		socket.emit('data', gameList);
 	};
 	io.on('connection', handleConnection);

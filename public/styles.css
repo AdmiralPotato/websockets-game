@@ -30,3 +30,37 @@ a {
 a:hover {
 	color: #69c;
 }
+
+#holder{
+	display: block;
+	position: absolute;
+	width: 280px;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 2;
+	margin: 0 auto 0 auto;
+	padding: 16px 0;
+	line-height: 0;
+	font-size: 0;
+}
+input, select, label{
+	font-size: 12px;
+	line-height: 24px;
+	display: inline-block;
+	width: 128px;
+	margin: 8px 8px 0 0;
+	padding: 0 16px;
+	color: #ddd;
+	background-color: #222;
+	border: 1px solid #690;
+	text-align: center;
+}
+label{
+	border: 1px solid #333;
+	background-color: #222;
+	width: 110px;
+	padding: 0 8px;
+	text-align: right;
+}
+
