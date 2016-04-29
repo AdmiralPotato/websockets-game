@@ -45,10 +45,9 @@ if(split.length === 1){
 	var onOffHandler = function(e){
 		isActive = 'mousedown keydown touchstart'.indexOf(e.type) !== -1;
 	};
-	var axisList = ['x', 'y'];
 	var moveHandler = function(e){
 		var gb = gameBoardHolder;
-		var scale = gb.scale[0]
+		var scale = gb.scale[0];
 		var xOffset = gb.offsetAxis === 0 ? gb.min : 0;
 		var yOffset = gb.offsetAxis === 1 ? gb.min : 0;
 		var x = (scene.mpos.x - xOffset) / scale * 2;

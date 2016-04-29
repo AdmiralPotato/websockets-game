@@ -1,6 +1,4 @@
-var Persist = require('./persist.js');
-
-var Game = function(io){
+var Game = function(io, persist){
 	var roomMap = {};
 	var roomList = [];
 	var makeRandomCollider = function(){
@@ -26,7 +24,7 @@ var Game = function(io){
 				if(distance < hitRadius){
 					hit = true;
 					player.score++;
-					Persist.recordPoint(room, player, collider);
+					persist.recordPoint(room, player, collider);
 					if(player.score >= winningScore){
 						gameOver = true;
 						initGame(room.id, player);
@@ -43,10 +41,10 @@ var Game = function(io){
 	};
 	var initGame = function(roomId, winningPlayer){
 		var room = roomMap[roomId];
-		room.gameId = Persist.getNewGameId();
+		room.gameId = persist.getNewGameId();
 		room.players.forEach(function(player){
 			player.score = 0;
-			Persist.recordPoint(room, player);
+			persist.recordPoint(room, player);
 		});
 		if(winningPlayer){
 			winningPlayer.messageCountdown = 80;
@@ -172,4 +170,4 @@ var Game = function(io){
 	io.on('connection', handleConnection);
 };
 
-module.exports = function(io){return new Game(io);};
+module.exports = function(io, persist){return new Game(io, persist);};

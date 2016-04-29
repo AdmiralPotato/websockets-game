@@ -32,6 +32,9 @@ var Persist = {
 			},
 			true
 		);
+	},
+	getPointList: function(){
+		return db.getData("/pointList");
 	}
 };
 
