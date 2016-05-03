@@ -31,7 +31,7 @@ if(split.length === 1){
 		this.scale[2] = scale;
 		this.rot[0] = cursor.y * -joystickInfluence;
 		this.rot[1] = cursor.x * joystickInfluence;
-		//point it at the cammera a little more
+		//point it at the camera a little more
 		if(gb.smallerAxis === 0){
 			this.rot[0] += gb.max / gb.min / 6;
 			this.rotOrder = [0, 1, 2];
